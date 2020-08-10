@@ -187,7 +187,10 @@ def print_screen(screen, url, show_scoreboard):
                 screen.addstr(y+5+num/width,0,message, curses.A_BOLD | curses.A_REVERSE)
                 message = ""
 
-            print_proceses(y+6+num/width,0,screen, data.proceses_data, columns=[ 1, 3, 5, 4, 11, 10, 12 ], sort=sort, reverse=reverse, width=width, show_only_active=show_only_active )
+            if protocol_column == 1:
+                print_proceses(y+6+num/width,0,screen, data.proceses_data, columns=[ 1, 3, 5, 4, 13, 11, 14 ], sort=sort, reverse=reverse, width=width, show_only_active=show_only_active )
+            else:
+                print_proceses(y+6+num/width,0,screen, data.proceses_data, columns=[ 1, 3, 5, 4, 11, 10, 12 ], sort=sort, reverse=reverse, width=width, show_only_active=show_only_active )
 
             #screen.hline(2, 1, curses.ACS_HLINE, 77)
             screen.refresh()
@@ -235,9 +238,9 @@ def print_screen(screen, url, show_scoreboard):
                     show_scoreboard = 1
                     message = "Showing mod_status scoreboard"
                 else:
-					show_scoreboard = 0
-					message = "Hiding mod_status scoreboard"
-					y = 0
+		    show_scoreboard = 0
+		    message = "Hiding mod_status scoreboard"
+		    y = 0
             elif c == "a":
                 # mostra els actius
                 if show_only_active:
@@ -262,7 +265,7 @@ def print_screen(screen, url, show_scoreboard):
             pass
 
 def print_proceses(y,x,screen, proceses, columns, sort, reverse, width, show_only_active = True):
-    header = "PID   M SS     CPU  VHost           IP              Request"
+    header = "PID   M SS     CPU  VHost           		    IP 	              		  Request"
     screen.addstr(y,x,header + " "*(width-len(header)), curses.A_REVERSE)
 
     n = 1
@@ -298,10 +301,10 @@ def print_process(y,x,screen,process,columns,show_only_active,width):
             n = n+ 6
             screen.addstr(y,n, str(process[columns[4]])) # VHOST
 
-            n = n+ 16
+            n = n+ 32
             screen.addstr(y,n, str(process[columns[5]])) # IP
 
-            n = n+ 15
+            n = n+ 30
             screen.addstr(y,n, " " + str(process[columns[6]])) # REQUEST
             return 1
         except:
@@ -313,11 +316,11 @@ def main(url, stdscr, show_scoreboard):
     """Shows the actual status of the Apache web server using the server-status
 url. It needs the ExtendedStatus flag
 
-    Usage: apache-top [-s] -u url
+    Usage: apache-top [-sp] -u url
         -u url    Url where apache-status is located
 		  Example: apache-top.py -u http://www.domain.com/server-status
         -s        Show scoreboard
-
+        -p        Protocol column
 
     Interactive keys:
 	q	Exit
@@ -360,8 +363,9 @@ if __name__ == "__main__":
 
     url = None
     show_scoreboard = False
+    protocol_column = False
     try:
-        opt_list = getopt.getopt(sys.argv[1:], "u:h:s")
+        opt_list = getopt.getopt(sys.argv[1:], "u:h:s:p")
     except:
         usage()
 
@@ -370,6 +374,8 @@ if __name__ == "__main__":
             usage(0)
         elif opt[0]=="-s":
             show_scoreboard = True
+        elif opt[0]=="-p":
+            protocol_column = True
         elif opt[0]=="-u":
             url = opt[1]
         else:
